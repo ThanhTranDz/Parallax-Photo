@@ -28,6 +28,11 @@ body {
   width: 100%;
   height: 50%;
   object-fit: cover;
+  opacity: 0.5;
+}
+
+.swiper-slide img:hover {
+  opacity: 1;  
 }
 .swiper-pagination {
   /* position: absolute; */
