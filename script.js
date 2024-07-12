@@ -1,55 +1,66 @@
 var swiper = new Swiper(".mySwiper", {
-  slidesPerView: 3,
-  spaceBetween: 30,
-  freeMode: true,
+  slidesPerView: 4,
+  centeredSlides: true,
+  spaceBetween: 10,
+  grabCursor: true,
   loop: true,
-  pagination: {
-    el: ".swiper-pagination",
-    clickable: true,
-  },
-  on: {
-    reachEnd: function () {
-      loadMoreSlides();
-    }
-  }
+  keyboard: true
 });
 
-async function fetchImage() {
+async function fetchDogImages() {
   try {
-    const response = await fetch('https://dog.ceo/api/breeds/image/random');
-    const data = await response.json();
-    return data.message;
+    const responses = await Promise.all([
+      fetch("https://dog.ceo/api/breeds/image/random"),
+      fetch("https://dog.ceo/api/breeds/image/random"),
+      fetch("https://dog.ceo/api/breeds/image/random"),
+      fetch("https://dog.ceo/api/breeds/image/random"),
+      fetch("https://dog.ceo/api/breeds/image/random"),
+      fetch("https://dog.ceo/api/breeds/image/random"),
+      fetch("https://dog.ceo/api/breeds/image/random")
+
+    ]);
+
+    const images = await Promise.all(responses.map(res => res.json()));
+    updateSlideBackground(".swiper-slide", images);
+  
   } catch (error) {
-    console.error('Error fetching image:', error);
-    return null;
+    console.error("Error fetching dog images:", error);
   }
 }
 
-async function loadMoreSlides() {
-  for (let i = 0; i < 3; i++) { // Load 3 new slides each time
-    const imageUrl = await fetchImage();
-    if (imageUrl) {
-      const newSlide = document.createElement('div');
-      newSlide.classList.add('swiper-slide');
-      const img = document.createElement('img');
-      img.src = imageUrl;
-      newSlide.appendChild(img);
-      swiper.appendSlide(newSlide); // Add new slide to swiper
-    }
+// chỉnh bgr của thẻ
+const slide = document.querySelectorAll(".swiper-slide");
+function updateSlideBackground(selector, imageUrl) {
+  const slide = document.querySelectorAll(selector);
+  if (slide) {
+    slide.forEach((image,index)=>{
+      image.style.backgroundImage = `url('${imageUrl[index].message}')`;
+    })
+  } else {
+    console.error(`Slide with selector "${selector}" not found`);
   }
 }
+fetchDogImages();
+const hoverEvent= () =>{
+  // const slide = document.querySelectorAll(selector);
+  slide.forEach((item, index) => {
+  console.log(item)
+  // Add class 'opacity' for other slide-item 
 
-async function initializeSlides() {
-  const slides = document.querySelectorAll('.swiper-slide');
-  for (let i = 0; i < slides.length; i++) {
-    const imageUrl = await fetchImage();
-    if (imageUrl) {
-      const img = document.createElement('img');
-      img.src = imageUrl;
-      slides[i].innerHTML = ''; // Clear existing content
-      slides[i].appendChild(img);
-    }
-  }
+  item.addEventListener('mouseenter', () => {
+      slide.forEach((item, idx) => {
+          if (idx !== index) {
+              item.classList.add('opacity');
+              
+          }
+      });
+  });
+  // Remove class 'opacity' when mouse leaves slide-item
+  item.addEventListener('mouseleave', () => {
+      slide.forEach((item) => {
+          item.classList.remove('opacity');
+      });
+  });
+  });
 }
-
-initializeSlides();
+hoverEvent();
